@@ -2,8 +2,6 @@
 For information of .pcap , look https://wiki.wireshark.org/Development/LibpcapFileFormat
 """
 
-import struct
-import sys
 import tool_func
 from data import link_types
 

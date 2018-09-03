@@ -9,5 +9,6 @@ def int_to_float(d):
     
     return ret_d
 
+# test function sample
 if __name__=="__main__":
     print(int_to_float(0x5800))
