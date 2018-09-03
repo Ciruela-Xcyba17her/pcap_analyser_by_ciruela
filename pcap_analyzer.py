@@ -2,8 +2,9 @@
 For information of .pcap , look https://wiki.wireshark.org/Development/LibpcapFileFormat
 """
 
+import struct
+import sys
 import tool_func
-from data import link_types
 
 class Pcap_header():
     def __init__(self, pcap_header_plain):
@@ -24,7 +25,7 @@ class Pcap_header():
         print("timezone : %d" % self.thiszone)
         print("accuracy of timestamps : %d" % self.sigfigs)
         print("max length of captured packets (octets) : %d" % self.snaplen)
-        print("data link type : %s" % link_types.LINK_TYPES[self.network])
+        print("data link type : %s" % LINK_TYPES[self.network])
         print("\n")
 
 class Packet_header():
