@@ -21,6 +21,7 @@ LINK_TYPES = make_data_dic("link_types")
 ETH_TYPES = make_data_dic("eth_types")
 
 if __name__=="__main__":
-    dic = make_data_dic("eth_types")
-    print(dic)
+    LINK_TYPES = make_data_dic("link_types")
+    ETH_TYPES = make_data_dic("eth_types")
+    print(ETH_TYPES[2048])
 
