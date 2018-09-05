@@ -64,7 +64,6 @@ class Ethernet_ii_frame():
     def __init__(self, ethernet_ii_plain):
         self.dst_mac, self.src_mac = "", ""
         for i in range(6):
-            #print(("%02x" % ethernet_ii_plain[i]) + ':')
             self.dst_mac += (("%02x" % ethernet_ii_plain[i]) + ':')
             self.src_mac += (("%02x" % ethernet_ii_plain[6 + i]) + ':')
         self.dst_mac = self.dst_mac[:-1]
@@ -103,8 +102,8 @@ class Ipv4_packet():
         for i in range(4):
             src_addr_content = (src_addr_plain >> (3 - i)*8) & 0xFF
             dst_addr_content = (dst_addr_plain >> (3 - i)*8) & 0xFF
-            self.src_addr += ("%d:" % src_addr_content)
-            self.dst_addr += ("%d:" % dst_addr_content)
+            self.src_addr += ("%d." % src_addr_content)
+            self.dst_addr += ("%d." % dst_addr_content)
         self.src_addr = self.src_addr[:-1]
         self.dst_addr = self.dst_addr[:-1]
         self.option = plain_data[20:self.ihl]
