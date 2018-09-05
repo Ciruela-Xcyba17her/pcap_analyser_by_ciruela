@@ -1,16 +1,4 @@
 
-def int_to_float(d):
-    print("d="+str(d))
-    base = 1
-    ret_d = 0
-
-    for i in range(64):
-        base /= 2
-        if d << i & 0x8000 == 0x8000:
-            ret_d += base
-    
-    return ret_d
-
 
 def my_struct_unpack_hex(endian, bit_list, bin_text, read_from = 0):
     cpy_bin_text = bin_text
