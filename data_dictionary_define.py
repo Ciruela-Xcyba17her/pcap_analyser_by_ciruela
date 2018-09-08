@@ -19,6 +19,7 @@ def make_data_dic(csv_file):
 
 LINK_TYPES = make_data_dic("link_types")
 ETH_TYPES = make_data_dic("eth_types")
+IPv4_PROTOCOLS = make_data_dic("ipv4_protocols")
 
 if __name__=="__main__":
     LINK_TYPES = make_data_dic("link_types")

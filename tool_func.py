@@ -1,3 +1,5 @@
+from typing import List,Union
+
 
 
 def my_struct_unpack_hex(endian, bit_list, bin_text, read_from = 0):
@@ -37,6 +39,24 @@ def my_struct_unpack_bin(endian, bit_range_list, bytes_text, read_from = 0):
             ret_dec_list[i] = int.from_bytes(ret_dec_list[i].to_bytes(bytes_length, 'little'), "big")
 
     return ret_dec_list
+
+def print_irregal_param_found(cmd : List[Union[str, int]], target_index):
+    print("%s: %s: Illegal parameter \"%s\"" % (cmd[0], cmd[target_index], cmd[target_index + 1]))
+    
+def equal_count(list : List[Union[int, str]], test_content):
+    count = 0
+    for s in list:
+        if s == test_content:
+            count += 1
+    return count
+
+def equal_index(list : List[Union[int, str]], test_content):
+    for index, s in enumerate(list):
+        if s == test_content:
+            return index
+    return 0
+
+
 
 # test function
 if __name__=="__main__":

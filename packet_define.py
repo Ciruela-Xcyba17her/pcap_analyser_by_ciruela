@@ -55,7 +55,8 @@ class Pcap_packet_data():
 
 
 class Pcap_packet():
-    def __init__(self, header, data):
+    def __init__(self,index, header, data):
+        self.index = index
         self.pcap_header = header
         self.pcap_data = data
 
@@ -71,8 +72,8 @@ class Ethernet_ii_frame():
         
         self.eth_type_code = struct.unpack_from(">H", ethernet_ii_plain, 12)[0]
         self.eth_type_name = ETH_TYPES[self.eth_type_code]
-        self.ip_packet = Ipv4_packet(ethernet_ii_plain[14:-4])
-        self.fcs = ethernet_ii_plain[-4:]
+        self.ip_packet = Ipv4_packet(ethernet_ii_plain[14:])
+        #self.fcs = ethernet_ii_plain[-4:]
 
     def info(self):
         print('-' * 20 + " Ethernet II frame info " + '-' * 20)
@@ -93,7 +94,8 @@ class Ipv4_packet():
         self.flags = d[5]
         self.fragment_offset = d[6]
         self.ttl = d[7]
-        self.protocol = d[8]
+        self.protocol_code = d[8]
+        self.protocol_name = IPv4_PROTOCOLS[d[8]]
         self.checksum = d[9]
 
         self.src_addr, self.dst_addr = "", ""
@@ -119,11 +121,12 @@ class Ipv4_packet():
         print("Flags : [Reserved:%d, Fragment_allowed:%d, Is_final_fragment:%d]" % (self.flags & 0b100 >> 2, self.flags & 0b010 >> 1, self.flags & 0b001))
         print("Fragment_Offset : %d" % self.fragment_offset)
         print("TTL : %d" % self.ttl)
-        print("Protocol : %d" % self.protocol)
+        print("Protocol : %s" % self.protocol_name)
         print("Checksum : 0x%x" % self.checksum)
         print("Source_IP : %s" % self.src_addr)
-        print("Destination_IP : %s" % self.src_addr)
+        print("Destination_IP : %s\n" % self.dst_addr)
         #print("Option : %x" % self.option)
+        
 
 
 

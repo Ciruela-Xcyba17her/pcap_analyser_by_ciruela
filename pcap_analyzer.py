@@ -7,13 +7,14 @@ import struct
 import sys
 import os
 import re
-import tool_func
+from tool_func import equal_count, equal_index, print_irregal_param_found
 from packet_define import *
 from print_func import *
 
 def readpcap(filename):
     f = open(filename, 'rb')
     packets = []
+    packets_index = 0
 
     pcap_header = Pcap_header(f.read(24))
 
@@ -25,7 +26,8 @@ def readpcap(filename):
         pcap_packet_data_plain = f.read(pcap_packet_header.incl_len)
         pcap_packet_data = Pcap_packet_data(pcap_packet_data_plain)
 
-        packet = Pcap_packet(pcap_packet_header, pcap_packet_data)
+        packet = Pcap_packet(packets_index, pcap_packet_header, pcap_packet_data)
+        packets_index += 1
 
         packets.append(packet)
     
@@ -59,6 +61,15 @@ def main():
     packets = readpcap(FILENAME)
     print("[ + ] Reading finished!\n")
 
+    packets_len = len(packets)
+
+    regex_addr = r"(^([0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9a-f]{0,4}:){7}[0-9a-f]{0,4}$|^([0-9a-f]{0,2}:){5}[0-9a-f]{0,2}$)"
+    addr_pattern = re.compile(regex_addr)
+    regex_hyphen_number = r"^[0-9]+-[0-9]+$"
+    hyphen_number_pattern = re.compile(regex_hyphen_number)
+    regex_number_only = r"^[0-9]+$"
+    number_only_pattern = re.compile(regex_number_only)
+
     while True:
         cmd = input("command> ").split()
         cmd_len = len(cmd)
@@ -75,11 +86,39 @@ def main():
             if cmd_len == 1:
                 print_packet_roughly(copied_packets)
                 continue
+            
+            #if equal_count(cmd, "-h"):
+            if equal_count(cmd, "-ir"):
+                cmd_index = equal_index(cmd, "-ir")
+                index_range_str = cmd[cmd_index + 1]
+                hnpm = hyphen_number_pattern.match(index_range_str)
+                
+                if hnpm:
+                    tmp_packets = []
+                    start_index_str, end_index_str = index_range_str.split('-')
+                    start_index = int(start_index_str) - 1
+                    end_index = int(end_index_str) - 1
 
-            if cmd.count("-src"):
-                cmd_index = cmd.index("-src")
+                    if start_index < 1:
+                        start_index = 1
+                    if end_index > packets_len:
+                        end_index = packets_len
+
+                    for i in range(len(copied_packets)):
+                        if start_index <= copied_packets[i].index <= end_index:
+                            tmp_packets.append(copied_packets[i])
+                    copied_packets = tmp_packets
+
+                nop = number_only_pattern.match(index_range_str)
+                if nop:
+                    tmp_packets = []
+                    tmp_packets.append(copied_packets[int(index_range_str) - 1])
+                    copied_packets = tmp_packets
+
+            if equal_count(cmd, "-s"):
+                cmd_index = equal_index(cmd, "-s")
                 src = cmd[cmd_index + 1]
-                m = re.match(r"(([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{0,4}:){7}[0-9a-f]{0,4}|([0-9a-f]{0,2}:){5}[0-9a-f]{0,2})", src)
+                m = addr_pattern.match(src)
                 if m:
                     tmp_packets = []
                     for i in range(len(copied_packets)):
@@ -87,13 +126,13 @@ def main():
                             tmp_packets.append(copied_packets[i])
                     copied_packets = tmp_packets
                 else:
-                    print("find: -src: Irregal argument \"%s\". " % cmd[cmd_index + 1])
+                    print_irregal_param_found(cmd, cmd_index)
                     continue
 
-            if cmd.count("-dst"):
-                cmd_index = cmd.index("-dst")
+            if equal_count(cmd, "-d"):
+                cmd_index = equal_index(cmd, "-d")
                 dst = cmd[cmd_index + 1]
-                m = re.match(r"(([0-9]{1,3}\.){3}[0-9]{1,3}|([0-9a-f]{0,4}:){7}[0-9a-f]{0,4}|([0-9a-f]{0,2}:){5}[0-9a-f]{0,2})", src)
+                m = addr_pattern.match(dst)
                 if m:
                     tmp_packets = []
                     for i in range(len(copied_packets)):
@@ -101,17 +140,35 @@ def main():
                             tmp_packets.append(copied_packets[i])
                     copied_packets = tmp_packets
                 else:
-                    print("find: -dst: Irregal argument \"%s\". " % cmd[cmd_index + 1])
+                    print_irregal_param_found(cmd, cmd_index)
                     continue
-
-
+                
+            
 
             print_packet_roughly(copied_packets)
             continue 
 
-        
+        if cmd[0] == "info":
+            
+            if cmd[1].isdecimal():
+                packet_index = int(cmd[1]) - 1
+                
+                if 1 <= packet_index <= packets_len:
+                    packet_index = int(cmd[1]) - 1
+                    packets[packet_index].pcap_data.eth_frame.info()
+                    packets[packet_index].pcap_data.eth_frame.ip_packet.info()
+                    print('-'* 27 + " Packet data " + '-'* 27)
+                    print_data(packets[packet_index].pcap_data.eth_frame.ip_packet.ip_data)
+                else:
+                    print("info: Index out of range. --- %d" % (packet_index+1))
+            else:
+                print("info: Illegal parameter %s" % str(cmd[1]))
+        continue
         
         print("%s: Command not found." % cmd[0])
 
 if __name__=="__main__":
+    #a = b'\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f'
+    #print_data(a)
     main()
+    
