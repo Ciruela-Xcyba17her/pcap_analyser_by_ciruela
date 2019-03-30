@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*-
+from tool_func import read_all_lines_from_file
 
 def make_data_dic(csv_file):
     ret_dic = {}
@@ -20,9 +20,18 @@ def make_data_dic(csv_file):
 LINK_TYPES = make_data_dic("link_types")
 ETH_TYPES = make_data_dic("eth_types")
 IPv4_PROTOCOLS = make_data_dic("ipv4_protocols")
+TCP_PORTS = make_data_dic("tcp_port")
+UDP_PORTS = make_data_dic("udp_port")
+SCTP_PORTS = make_data_dic("sctp_port")
+DCCP_PORTS = make_data_dic("dccp_port")
+
+DEFINED_ETHTYPES = read_all_lines_from_file("defined_ethtypes")
+DEFINED_IP_PROTOCOLS = read_all_lines_from_file("defined_ip_protocols")
 
 if __name__=="__main__":
+    """ Use this space you want to test something.
     LINK_TYPES = make_data_dic("link_types")
     ETH_TYPES = make_data_dic("eth_types")
     print(ETH_TYPES[2048])
+    """
 

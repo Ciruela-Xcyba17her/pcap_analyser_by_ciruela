@@ -101,6 +101,7 @@ def print_packet_roughly(pcap_packets: List[Pcap_packet]):
     for p in pcap_packets:
         sys.stdout.write("%7d|" % (p.index+1))
         sys.stdout.write(("%5s" % str(p.pcap_header.ts_sec)) + (".%06d" % (p.pcap_header.ts_usec))[:4] + '|')
+        
         if p.pcap_data.eth_frame.eth_type_name == "IPv4":
             sys.stdout.write("%s|" % p.pcap_data.eth_frame.ip_packet.src_addr.rjust(17))
             sys.stdout.write("%s|" % p.pcap_data.eth_frame.ip_packet.dst_addr.rjust(17))
@@ -109,6 +110,17 @@ def print_packet_roughly(pcap_packets: List[Pcap_packet]):
             sys.stdout.write("%s" % str("[Please wait for a while]"))
             sys.stdout.write('\n')
             #print("----------------------------------------------------------------------------------------------------")
+        
+        # Activate the following code if you want to display information of IPv6 and other Packet.
+        """
+        sys.stdout.write("%s|" % p.pcap_data.eth_frame.ip_packet.src_addr.rjust(17))
+        sys.stdout.write("%s|" % p.pcap_data.eth_frame.ip_packet.dst_addr.rjust(17))
+        sys.stdout.write("%s|" % str(p.pcap_data.eth_frame.ip_packet.length).rjust(5))
+        sys.stdout.write(("%s|" % str(p.pcap_data.eth_frame.ip_packet.protocol_name)).rjust(16))
+        sys.stdout.write("%s" % str("[Please wait for a while]"))
+        sys.stdout.write('\n')
+        #print("----------------------------------------------------------------------------------------------------")
+        """
 
     sys.stdout.write('\n')    
 

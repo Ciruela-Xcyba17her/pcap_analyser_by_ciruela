@@ -59,7 +59,8 @@ def main():
 
     print("[ + ] Reading input pcap file...")
     packets = readpcap(FILENAME)
-    print("[ + ] Reading finished!\n")
+    print("[ + ] Reading finished!")
+    print("----- You can use \"help\" command to display command usage. -----\n")
 
     packets_len = len(packets)
 
@@ -80,6 +81,28 @@ def main():
             sys.stdout.write("\n")
             sys.exit(0)
         
+        if cmd[0] == "help":
+            print("*********************************")
+            print("*** PcapAnalyzer command help ***")
+            print("*********************************")
+            print("help : display this help.")
+            print("exit : exit this program.")
+            print("show : display each packet's information roughly.")
+            print("     --- options for \"show\" ---")
+            print("     -r : show limited number of packets by specific range of packet number.")
+            print("          Usage) show -r [Number A]-[Number B] ")
+            print("          Example) show -r 576-600")
+            print("     -s : show limited number of packets by source address.")
+            print("          Usage) show -s [Source Address]")
+            print("          Example) show -s 192.168.0.2")
+            print("     -d : show limited number of packets by destination address.")
+            print("          Usage) show -d [Destination Address]")
+            print("          Example) show -d 111.222.111.222")
+            print("info : print a packet\'s detail.")
+            print("       Usage) info [Packet Number]")
+            print("       Example) info 1")
+            continue
+
         copied_packets = packets
 
         if cmd[0] == "show":
@@ -88,8 +111,8 @@ def main():
                 continue
             
             #if equal_count(cmd, "-h"):
-            if equal_count(cmd, "-ir"):
-                cmd_index = equal_index(cmd, "-ir")
+            if equal_count(cmd, "-r"):
+                cmd_index = equal_index(cmd, "-r")
                 index_range_str = cmd[cmd_index + 1]
                 hnpm = hyphen_number_pattern.match(index_range_str)
                 
@@ -99,8 +122,8 @@ def main():
                     start_index = int(start_index_str) - 1
                     end_index = int(end_index_str) - 1
 
-                    if start_index < 1:
-                        start_index = 1
+                    if start_index < 0:
+                        start_index = 0
                     if end_index > packets_len:
                         end_index = packets_len
 
@@ -163,12 +186,10 @@ def main():
                     print("info: Index out of range. --- %d" % (packet_index+1))
             else:
                 print("info: Illegal parameter %s" % str(cmd[1]))
-        continue
+            continue
         
         print("%s: Command not found." % cmd[0])
 
 if __name__=="__main__":
-    #a = b'\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f'
-    #print_data(a)
     main()
     

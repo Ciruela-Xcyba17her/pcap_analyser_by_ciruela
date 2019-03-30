@@ -56,8 +56,25 @@ def equal_index(list : List[Union[int, str]], test_content):
             return index
     return 0
 
+def read_all_lines_from_file(filename : str):
+    with open("data/" + filename + ".txt") as f:
+        lines = f.readlines()
+        ret_lines = []
+        for line in lines:
+            ret_lines.append(line[:-1])
+    return ret_lines
 
+def read_ipv6_addr(plain_number:int):
+    print("%x" % plain_number)
+    ipv6_addr = []
+    for i in range(8):
+        addr = (plain_number >> ((8-i) * 16)) & 0xFFFF
+        print("%04x" % addr)
+        ipv6_addr.append("%04x" % addr)
+    
+    return ":".join(ipv6_addr)
 
 # test function
 if __name__=="__main__":
+    print(read_ipv6_addr(111111111111111111))
     pass

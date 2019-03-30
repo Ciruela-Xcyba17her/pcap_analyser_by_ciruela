@@ -72,7 +72,15 @@ class Ethernet_ii_frame():
         
         self.eth_type_code = struct.unpack_from(">H", ethernet_ii_plain, 12)[0]
         self.eth_type_name = ETH_TYPES[self.eth_type_code]
-        self.ip_packet = Ipv4_packet(ethernet_ii_plain[14:])
+        
+        #print(DEFINED_ETHTYPES)
+        if DEFINED_ETHTYPES.count(self.eth_type_name) == 0:
+            self.ip_packet = Undefined_packet(ethernet_ii_plain[14:])
+        elif self.eth_type_name == "IPv4":
+            self.ip_packet = Ipv4_packet(ethernet_ii_plain[14:])
+        elif self.eth_type_name == "IPv6":
+            self.ip_packet = Ipv6_packet(ethernet_ii_plain[14:])
+
         #self.fcs = ethernet_ii_plain[-4:]
 
     def info(self):
@@ -80,6 +88,21 @@ class Ethernet_ii_frame():
         print("Source MAC Address : %s" % self.src_mac)
         print("Destination MAC Address : %s" % self.dst_mac)
         print("EtherType : %s\n" % self.eth_type_name)
+
+class Undefined_packet():
+    def __init__(self, plain_data):
+            self.src_addr = ""
+            self.dst_addr = ""
+            self.length = ""
+            self.protocol_name = ""
+            self.ip_data = plain_data
+
+    def info(self):
+        print('-' * 20 + " ** EtherType Undefined ** " + '-' * 20)
+
+###############################################################
+# Layer 3
+###############################################################
 
 class Ipv4_packet():
 
@@ -126,7 +149,78 @@ class Ipv4_packet():
         print("Source_IP : %s" % self.src_addr)
         print("Destination_IP : %s\n" % self.dst_addr)
         #print("Option : %x" % self.option)
-        
+    
+class Ipv6_packet():
+    class Traffic_class():
+        def __init__(self, data:int):
+            self.DSCP = data & 0b11111100 >> 2
+            self.ECT = data & 0b00000010 >> 1
+            self.CE = data & 0b00000001
 
+    def __init__(self, plain_data):
+        read_size_list = [4, 8, 20, 16, 8, 8, 128, 128]
+        d = my_struct_unpack_bin('big', read_size_list, plain_data)
+        self.version = d[0]
+        self.traffic_class = self.Traffic_class(d[1])
+        self.flow_label = d[2]
+        self.length = d[3]
+        self.next_header = d[4]
+        self.hop_limit = d[5]
+        self.src_addr = read_ipv6_addr(d[6])
+        self.dst_addr = read_ipv6_addr(d[7])
 
+    def info(self):
+        print('-' * 20 + " IPv6 Packet info " + '-' * 20)
+        print("version : %d" % self.version)
+        print("traffic class -\n\tDSCP:%d\n\tECT:%d\n\tCE:%d" % (self.traffic_class.DSCP, self.traffic_class.ECT, self.traffic_class.CE))
+        print("flowlabel : %05x" % self.flow_label)
+        print("")
+
+##########################################################
+# Layer 4
+##########################################################
+
+class TCP_segment():
+    class Flags():
+        def __init__(self, data:int):
+            self.CWR = data & 0x80 >> 7
+            self.ECE = data & 0x40 >> 6
+            self.URG = data & 0x20 >> 5
+            self.ACK = data & 0x10 >> 4
+            self.PSH = data & 0x08 >> 3
+            self.RST = data & 0x04 >> 2
+            self.SYN = data & 0x02 >> 1
+            self.FIN = data & 0x01
+
+    def __init__(self, plain_data):
+        read_size_list = [16, 16, 32, 32, 4, 4, 8, 16, 16, 16, 24, 8]
+        d = my_struct_unpack_bin('big', read_size_list, plain_data)
+        self.src_port_num = d[0]
+        self.src_port_name = TCP_PORTS[d[0]]
+        self.dst_port_num = d[1]
+        self.dst_port_name = TCP_PORTS[d[1]]
+        self.seq_num = d[2]
+        self.ack_num = d[3]
+        self.data_offset = d[4]
+        self.reserved = d[5]
+        self.flags = self.Flags(d[6])
+        self.window_size = d[7]
+        self.checksum = d[8]
+        self.urgent_pointer = d[9]
+        self.options = d[10]
+        self.padding = d[11]
+        self.tcp_data = plain_data[sum(read_size_list)]
+
+class UDP_segment():
+    def __init__(self, plain_data):
+        d = read_size_list = [16, 16, 16, 16]
+        self.src_port_num = d[0]
+        self.src_port_name = TCP_PORTS[d[0]]
+        self.dst_port_num = d[1]
+        self.dst_port_name = TCP_PORTS[d[1]]
+        self.length = d[2]
+        self.checksum = d[3]
+        self.tcp_data = plain_data[sum(read_size_list):]
+
+    
 
